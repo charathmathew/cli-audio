@@ -6,9 +6,10 @@ import time
 
 class Player:
     def __init__(self):
-        self.currentSong = "Nothing playing."
+        self.currentSong = "Nothing Playing"
         self.paused = True
         self.position = 0
+        self.streamExists = False
 
     def getCurrentSong(self):
         return self.currentSong
@@ -36,17 +37,25 @@ class Player:
                 output=True,
                 stream_callback=self.callback)
 
+        self.streamExists = True
+
         # start the self.stream (4)
         self.stream.start_stream()
 
     def stop(self):
-        self.stream.stop_stream()
-        self.stream.close()
-        self.wf.close()
+        if(self.streamExists):
+            self.stream.stop_stream()
+            self.stream.close()
+            self.wf.close()
 
-        self.p.terminate() 
+            self.p.terminate()
+        
 
     def callback(self, in_data, frame_count, time_info, status):
         data = self.wf.readframes(frame_count)
         return (data, pyaudio.paContinue)
 
+    def resetCurrentSong(self):
+        if (self.streamExists):
+            self.stop()
+        self.currentSong = "Nothing Playing"
